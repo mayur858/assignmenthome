@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "495669189513",
+    "project_id": "assignmenthome-58e1f",
+    "storage_bucket": "assignmenthome-58e1f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:495669189513:android:508f1deee52b4a1a5b1f58",
+        "android_client_info": {
+          "package_name": "com.example.assignmenthome"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0Y5lvcnx-4ojfX1uHtbKvNZ49K-YfEtU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

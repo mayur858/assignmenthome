@@ -1,4 +1,6 @@
+import 'package:assignmenthome/postgres_database.dart'; // Import the PostgreSQL helper
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DetailsPage extends StatefulWidget {
   const DetailsPage({super.key});
@@ -15,12 +17,59 @@ class _DetailsPageState extends State<DetailsPage> {
   final TextEditingController _paxController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
 
+  //menu
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _instructionController = TextEditingController();
+
   String? _selectedMealType;
   String? _selectedFunctionName;
   String? _selectedTime;
 
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _instructionController = TextEditingController();
+  List<String> _mealTypes = [];
+  List<String> _functionNames = [];
+  List<String> _times = ['Morning', 'Evening'];
+
+  final postgresHelper = PosgresHelper(); // Instance of PostgresHelper
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMealTypes(); 
+    _fetchFunctionNamesFromPostgres(); 
+  }
+
+  Future<void> _fetchMealTypes() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('meal_types').get();
+
+      List<String> mealTypes = [];
+      for (var doc in querySnapshot.docs) {
+        if (doc.exists && doc.data() != null) {
+          final data = doc.data() as Map<String, dynamic>;
+          if (data.containsKey('Type') && data['Type'] is List) {
+            mealTypes.addAll(List<String>.from(data['Type']));
+          }
+        }
+      }
+
+      setState(() {
+        _mealTypes = mealTypes.toSet().toList(); 
+      });
+
+      debugPrint("Meal Types Fetched: $_mealTypes");
+    } catch (error) {
+      debugPrint("Error fetching meal types: $error");
+    }
+  }
+
+  Future<void> _fetchFunctionNamesFromPostgres() async {
+    final functionNames = await postgresHelper.fetchFunctionsNames();
+    setState(() {
+      _functionNames = functionNames;
+    });
+    debugPrint("Function Names Fetched: $_functionNames");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,16 +130,17 @@ class _DetailsPageState extends State<DetailsPage> {
 
               // Meal Type Dropdown
               _buildDropdownField(
-                labelText: 'select meal type',
-                items: const ['Veg', 'Non-Veg'],
+                labelText: 'Select Meal Type',
+                items: _mealTypes,
                 onChanged: (value) => setState(() => _selectedMealType = value),
               ),
               const SizedBox(height: 16),
 
-              // Function Name Dropdown
               _buildDropdownField(
-                labelText: 'select function name',
-                items: const ['Wedding', 'Birthday'],
+                labelText: 'Select Function Name',
+                items: _functionNames.isNotEmpty
+                    ? _functionNames
+                    : ['Loading...'], 
                 onChanged: (value) =>
                     setState(() => _selectedFunctionName = value),
               ),
@@ -98,7 +148,7 @@ class _DetailsPageState extends State<DetailsPage> {
 
               // Time Dropdown
               _buildDropdownField(
-                labelText: 'select time',
+                labelText: 'Select Time',
                 items: const ['Morning', 'Evening'],
                 onChanged: (value) => setState(() => _selectedTime = value),
               ),
@@ -124,8 +174,7 @@ class _DetailsPageState extends State<DetailsPage> {
         labelText: labelText,
         labelStyle: const TextStyle(color: Colors.black54),
         border: OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(50), 
+          borderRadius: BorderRadius.circular(50),
           borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         enabledBorder: OutlineInputBorder(
@@ -147,7 +196,6 @@ class _DetailsPageState extends State<DetailsPage> {
     );
   }
 
-  
   Widget _buildDropdownField({
     required String labelText,
     required List<String> items,
@@ -158,8 +206,7 @@ class _DetailsPageState extends State<DetailsPage> {
         labelText: labelText,
         labelStyle: const TextStyle(color: Colors.black54),
         border: OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(50), 
+          borderRadius: BorderRadius.circular(50),
           borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         enabledBorder: OutlineInputBorder(
@@ -190,7 +237,7 @@ class _DetailsPageState extends State<DetailsPage> {
   Widget _buildMenuSection() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF00004D), 
+        color: const Color(0xFF00004D),
         borderRadius: BorderRadius.circular(15),
       ),
       padding: const EdgeInsets.all(16),
@@ -244,7 +291,7 @@ class _DetailsPageState extends State<DetailsPage> {
               decoration: InputDecoration(
                 labelText: 'Name',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50), 
+                  borderRadius: BorderRadius.circular(50),
                 ),
               ),
             ),
