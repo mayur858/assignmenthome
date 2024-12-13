@@ -27,15 +27,15 @@ class _DetailsPageState extends State<DetailsPage> {
 
   List<String> _mealTypes = [];
   List<String> _functionNames = [];
-  List<String> _times = ['Morning', 'Evening'];
+  List<String> _times = const ['Morning', 'Evening'];
 
-  final postgresHelper = PosgresHelper(); // Instance of PostgresHelper
+  final postgresHelper = PostgresHelper(); // Instance of PostgresHelper
 
   @override
   void initState() {
     super.initState();
-    _fetchMealTypes(); 
-    _fetchFunctionNamesFromPostgres(); 
+    _fetchMealTypes();
+    _fetchFunctionNamesFromPostgres();
   }
 
   Future<void> _fetchMealTypes() async {
@@ -54,7 +54,7 @@ class _DetailsPageState extends State<DetailsPage> {
       }
 
       setState(() {
-        _mealTypes = mealTypes.toSet().toList(); 
+        _mealTypes = mealTypes.toSet().toList();
       });
 
       debugPrint("Meal Types Fetched: $_mealTypes");
@@ -64,11 +64,27 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   Future<void> _fetchFunctionNamesFromPostgres() async {
-    final functionNames = await postgresHelper.fetchFunctionsNames();
-    setState(() {
-      _functionNames = functionNames;
-    });
-    debugPrint("Function Names Fetched: $_functionNames");
+    try {
+      final functionNames = await postgresHelper.fetchFunctionsNames();
+      if (functionNames.isNotEmpty) {
+        setState(() {
+          _functionNames =
+              functionNames; // Update the state with the fetched data
+        });
+      } else {
+        setState(() {
+          _functionNames = [
+            'No functions available'
+          ]; // Fallback in case of empty data
+        });
+      }
+      debugPrint("Function Names Fetched: $_functionNames");
+    } catch (error) {
+      debugPrint("Error fetching function names: $error");
+      setState(() {
+        _functionNames = ['Error fetching data'];
+      });
+    }
   }
 
   @override
@@ -138,9 +154,8 @@ class _DetailsPageState extends State<DetailsPage> {
 
               _buildDropdownField(
                 labelText: 'Select Function Name',
-                items: _functionNames.isNotEmpty
-                    ? _functionNames
-                    : ['Loading...'], 
+                items:
+                    _functionNames.isNotEmpty ? _functionNames : ['Loading...'],
                 onChanged: (value) =>
                     setState(() => _selectedFunctionName = value),
               ),
