@@ -29,7 +29,7 @@ class _DetailsPageState extends State<DetailsPage> {
   List<String> _functionNames = [];
   List<String> _times = const ['Morning', 'Evening'];
 
-  final postgresHelper = PostgresHelper(); // Instance of PostgresHelper
+  final postgresHelper = PostgresHelper();
 
   @override
   void initState() {
@@ -65,20 +65,12 @@ class _DetailsPageState extends State<DetailsPage> {
 
   Future<void> _fetchFunctionNamesFromPostgres() async {
     try {
-      final functionNames = await postgresHelper.fetchFunctionsNames();
-      if (functionNames.isNotEmpty) {
-        setState(() {
-          _functionNames =
-              functionNames; // Update the state with the fetched data
-        });
-      } else {
-        setState(() {
-          _functionNames = [
-            'No functions available'
-          ]; // Fallback in case of empty data
-        });
-      }
-      debugPrint("Function Names Fetched: $_functionNames");
+      final functionNames = await postgresHelper.fetchFunctions();
+      setState(() {
+        _functionNames = functionNames.isNotEmpty
+            ? functionNames
+            : ['No functions available'];
+      });
     } catch (error) {
       debugPrint("Error fetching function names: $error");
       setState(() {

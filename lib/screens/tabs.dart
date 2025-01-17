@@ -106,11 +106,10 @@ class _TabsScreenState extends State<TabsScreen> {
             _selectedIndex = index;
           });
         },
-        backgroundColor:
-            const Color(0xFFF9A825), 
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.black54,
-        type: BottomNavigationBarType.fixed, 
+        backgroundColor: Colors.white,
+        selectedItemColor: Color(0xFFF9A825),
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -145,7 +144,7 @@ class _TabsScreenState extends State<TabsScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        backgroundColor: const Color(0xFF1565C0), 
+        backgroundColor: const Color(0xFF1565C0),
         foregroundColor: Colors.white,
       ),
       icon: Icon(icon, size: 28),
